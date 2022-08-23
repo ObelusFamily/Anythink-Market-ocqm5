@@ -54,7 +54,7 @@ router.get("/", auth.optional, function (req, res, next) {
   }
 
   if (req.query.title) {
-    query.title = { $in: [req.query.title] };
+    query.title = { $eq: req.query.title };
   }
 
   Promise.all([

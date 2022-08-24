@@ -8,7 +8,7 @@ import {
   HOME_PAGE_LOADED,
   HOME_PAGE_UNLOADED,
   APPLY_TAG_FILTER,
-  APPLY_TITLE_FILTER,
+  APPLY_TITLE_FILTER
 } from "../../constants/actionTypes";
 
 const Promise = global.Promise;
@@ -25,7 +25,7 @@ const mapDispatchToProps = (dispatch) => ({
   onLoad: (tab, pager, payload) =>
     dispatch({ type: HOME_PAGE_LOADED, tab, pager, payload }),
   onUnload: () => dispatch({ type: HOME_PAGE_UNLOADED }),
-  onSearchChange: (title) => dispatch({ type: APPLY_TITLE_FILTER, title }),
+  onSearchChange: (title) => dispatch({type: APPLY_TITLE_FILTER, title})
 });
 
 class Home extends React.Component {
@@ -56,7 +56,7 @@ class Home extends React.Component {
   render() {
     return (
       <div className="home-page">
-        <Banner onSearchChange={this.onSearchChange} />
+        <Banner onSearchChange={this.onSearchChange}/>
 
         <div className="container page">
           <Tags tags={this.props.tags} onClickTag={this.props.onClickTag} />

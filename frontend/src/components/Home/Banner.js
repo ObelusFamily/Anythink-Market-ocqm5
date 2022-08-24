@@ -8,13 +8,7 @@ const Banner = (props) => {
         <img src={logo} alt="banner" />
         <div>
           <span id="get-part">A place to get</span>
-          <input
-            type="search"
-            id="search-box"
-            className="search-box"
-            placeholder="What is it that you truly desire?"
-            onChange={props.onSearchChange}
-          />
+          <input type="search" id="search-box" className="search-box" placeholder="What is it that you truly desire?" onChange={props.onSearchChange}/>
           <span> the cool stuff.</span>
         </div>
       </div>

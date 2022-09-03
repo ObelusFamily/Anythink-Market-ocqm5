@@ -25,8 +25,8 @@ const mapDispatchToProps = (dispatch) => ({
   onLoad: (tab, pager, payload) =>
     dispatch({ type: HOME_PAGE_LOADED, tab, pager, payload }),
   onUnload: () => dispatch({ type: HOME_PAGE_UNLOADED }),
-  onSearchChange: (pager, payload) =>
-    dispatch({ type: APPLY_TITLE_FILTER, pager, payload }),
+  onSearchChange: (title, pager, payload) =>
+    dispatch({ type: APPLY_TITLE_FILTER, pager, payload, title }),
 });
 
 class Home extends React.Component {
@@ -51,11 +51,16 @@ class Home extends React.Component {
 
   onSearchChange(e) {
     if (!e.target.value.length) {
-      this.props.onSearchChange((page) => agent.Items.all(), agent.Items.all());
+      this.props.onSearchChange(
+        null,
+        (page) => agent.Items.all(),
+        agent.Items.all()
+      );
     }
     if (e.target.value.length > 2) {
       const title = e.target.value;
       this.props.onSearchChange(
+        title,
         (page) => agent.Items.byTitle(title, page),
         agent.Items.byTitle(title)
       );

@@ -9,7 +9,10 @@ const Banner = (props) => {
         <img src={logo} alt="banner" />
         <div>
           <span id="get-part">
-            A place to <span onClick={() => setShowInput(true)}>get</span>
+            A place to{" "}
+            <span id="get-part" onClick={() => setShowInput(true)}>
+              get
+            </span>
           </span>
           {showInput && (
             <input

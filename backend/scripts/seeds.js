@@ -8,7 +8,7 @@ const User = mongoose.model("User");
 const Item = mongoose.model("Item");
 const Comment = mongoose.model("Comment");
 
-mongoose.connect("mongodb://mongodb-node:27017/anythink-market", {
+mongoose.connect(process.env.MONGODB_URI, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
 });

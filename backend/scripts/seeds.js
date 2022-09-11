@@ -23,7 +23,7 @@ function setPassword(password) {
 }
 
 const usersArr = [];
-for (let i = 1; i <= 5; i++) {
+for (let i = 1; i <= 100; i++) {
   usersArr.push({
     username: `user${i}`,
     email: `user${i}@example.com`,
@@ -52,7 +52,7 @@ async function createUsers() {
   return new Promise((res, rej) => {
     console.log("creating 100 users");
     const usersArr = [];
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 100; i++) {
       usersArr.push({
         username: `user${i}`,
         email: `user${i}@example.com`,
@@ -73,7 +73,7 @@ async function createItems(users) {
   return new Promise((res, rej) => {
     console.log("creating 100 items");
     const itemsArr = [];
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 100; i++) {
       itemsArr.push({
         title: `item${i}`,
         description: `item${i} description`,
@@ -94,7 +94,7 @@ async function createComments(users, items) {
   return new Promise(async (res, rej) => {
     console.log("creating 100 comments");
     const commentsArr = [];
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 100; i++) {
       commentsArr.push({
         body: `comment #${i}`,
         item: items[getRandomIntInclusive(4)],
@@ -122,13 +122,19 @@ async function seed() {
     }
   });
 }
-
-seed()
+clear()
   .then((res) => {
-    console.log(res);
+    console.log("cleared database");
+    seed()
+      .then((res2) => {
+        console.log("seed completed", res2);
+      })
+      .catch((err2) => {
+        console.error("could not seed", err2);
+      });
   })
-  .catch((e) => {
-    console.error(e);
+  .catch((err) => {
+    console.error("error clearing database", err);
   })
   .finally(() => {
     mongoose.connection.close();

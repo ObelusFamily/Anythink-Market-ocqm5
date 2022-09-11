@@ -1,141 +1,79 @@
 const mongoose = require("mongoose");
+
 require("../models/User");
 require("../models/Item");
 require("../models/Comment");
-// require("./models/Comment");
-const crypto = require("crypto");
-const User = mongoose.model("User");
-const Item = mongoose.model("Item");
-const Comment = mongoose.model("Comment");
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useUnifiedTopology: true,
-  useNewUrlParser: true,
-});
-mongoose.set("debug", true);
+var Item = mongoose.model("Item");
+var Comment = mongoose.model("Comment");
+var User = mongoose.model("User");
 
-function setPassword(password) {
-  const salt = crypto.randomBytes(16).toString("hex");
-  const hash = crypto
-    .pbkdf2Sync(password, salt, 10000, 512, "sha512")
-    .toString("hex");
-  return { salt, hash };
+if (!process.env.MONGODB_URI) {
+  console.warn("Missing MONGODB_URI in env, please add it to your .env file");
 }
 
-const usersArr = [];
-for (let i = 1; i <= 100; i++) {
-  usersArr.push({
-    username: `user${i}`,
-    email: `user${i}@example.com`,
-    ...setPassword(`user${i}@example.com`),
-  });
-}
+mongoose.connect(process.env.MONGODB_URI);
 
-function getRandomIntInclusive(max) {
-  return Math.floor(Math.random() * (max + 1) + 0);
-}
-async function clear() {
-  return Promise.all([
-    await User.deleteMany(),
-    await Item.deleteMany(),
-    await Comment.deleteMany(),
-  ]);
-}
-async function check() {
-  return Promise.all([
-    await User.find({}),
-    await Item.find(),
-    await Comment.find(),
-  ]);
-}
-async function createUsers() {
-  return new Promise((res, rej) => {
-    console.log("creating 100 users");
-    const usersArr = [];
-    for (let i = 1; i <= 100; i++) {
-      usersArr.push({
-        username: `user${i}`,
-        email: `user${i}@example.com`,
-        ...setPassword(`user${i}@example.com`),
-      });
+let userId;
+let itemId;
+async function saveFakeData() {
+  const users = Array.from(Array(100)).map((_item, i) => ({
+    username: `fakeuser${i}`,
+    email: `fakeuser${i}@anythink.com`,
+    bio: "test bio",
+    image: "https://picsum.photos/200",
+    role: "user",
+    favorites: [],
+    following: [],
+  }));
+
+  for (let user of users) {
+    const u = new User(user);
+
+    const dbItem = await u.save();
+    if (!userId) {
+      userId = dbItem._id;
     }
+  }
 
-    User.insertMany(usersArr, { ordered: true }, (err, users) => {
-      if (err) {
-        rej(err);
-      }
-      console.log("created 100 users");
-      res(users);
-    });
-  });
-}
-async function createItems(users) {
-  return new Promise((res, rej) => {
-    console.log("creating 100 items");
-    const itemsArr = [];
-    for (let i = 1; i <= 100; i++) {
-      itemsArr.push({
-        title: `item${i}`,
-        description: `item${i} description`,
-        seller: users[getRandomIntInclusive(4)],
-      });
+  const items = Array.from(Array(100)).map((_item, i) => ({
+    slug: `fakeitem${i}`,
+    title: `Fake Item ${i}`,
+    description: "test description",
+    image: "https://picsum.photos/200",
+    comments: [],
+    tagList: ["test", "tag"],
+    seller: userId,
+  }));
+
+  for (let item of items) {
+    const it = new Item(item);
+
+    const dbItem = await it.save();
+
+    if (!itemId) {
+      itemId = dbItem._id;
     }
-    Item.insertMany(itemsArr, { ordered: true }, (err, items) => {
-      if (err) {
-        rej(err);
-      }
-      console.log("created 100 items");
-      res(items);
-    });
-  });
+  }
+
+  const comments = Array.from(Array(100)).map((_item, i) => ({
+    body: "This is a test comment",
+    seller: userId,
+    item: itemId,
+  }));
+
+  for (comment of comments) {
+    const c = new Comment(comment);
+
+    await c.save();
+  }
 }
 
-async function createComments(users, items) {
-  return new Promise(async (res, rej) => {
-    console.log("creating 100 comments");
-    const commentsArr = [];
-    for (let i = 1; i <= 100; i++) {
-      commentsArr.push({
-        body: `comment #${i}`,
-        item: items[getRandomIntInclusive(4)],
-        seller: users[getRandomIntInclusive(4)],
-      });
-    }
-    Comment.insertMany(commentsArr, { ordered: true }, (err, comments) => {
-      if (err) {
-        rej(err);
-      }
-      console.log("created 100 comments");
-      res(comments);
-    });
-  });
-}
-async function seed() {
-  return new Promise(async (res, rej) => {
-    try {
-      const users = await createUsers();
-      const items = await createItems(users);
-      const comments = await createComments(users, items);
-      res({ users, items, comments });
-    } catch (error) {
-      rej(error);
-    }
-  });
-}
-clear()
-  .then((res) => {
-    console.log("cleared database");
-    seed()
-      .then((res2) => {
-        console.log("seed completed", res2);
-      })
-      .catch((err2) => {
-        console.error("could not seed", err2);
-      });
+saveFakeData()
+  .then(() => {
+    process.exit();
   })
   .catch((err) => {
-    console.error("error clearing database", err);
-  })
-  .finally(() => {
-    mongoose.connection.close();
+    console.error(err);
+    process.exit();
   });
